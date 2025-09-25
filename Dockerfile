@@ -1,11 +1,10 @@
-FROM node:18-alpine as build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
 COPY . .
-RUN npm run build
+RUN mvn clean package -DskipTests
 
-FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY --from=build /app/target/Property-Management-BE-*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
