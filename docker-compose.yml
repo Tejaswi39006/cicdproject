@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: property-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 39006
+      MYSQL_DATABASE: property
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: ./Property-Management-BE
+    container_name: property-backend
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/property
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 39006
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      FILE_UPLOAD_DIR: /app/uploads
+    volumes:
+      - ./Property-Management-BE/uploads:/app/uploads
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./Property-Management-FE
+    container_name: property-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  mysql_data:
